@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Workout Monthly</title>
+<style>
+:root{
+  --text:#1f2937;
+  --muted:#6b7280;
+  --line:rgba(17,24,39,.14);
+  --hover:rgba(17,24,39,.05);
+  --green:#22c55e;
+  --orange:#f59e0b;
+  --red:#ef4444;
+  --empty:#94a3b8;
+  --shadow:0 10px 30px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color:var(--text);
+  background:transparent;
+  padding:12px;
+}
+.site{width:min(980px,100%);margin:0 auto;}
+.topnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;}
+.brand{font-size:13px;color:var(--muted);}
+.menu-wrap{position:relative;}
+.menu-btn{
+  border:1px solid var(--line);background:rgba(255,255,255,.78);color:var(--text);
+  border-radius:12px;width:44px;height:44px;cursor:pointer;backdrop-filter:blur(8px);font-size:18px;
+}
+.menu-btn:hover{background:rgba(255,255,255,.95)}
+.menu-panel{
+  position:absolute;right:0;top:calc(100% + 8px);min-width:220px;background:rgba(255,255,255,.96);
+  border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:8px;display:none;z-index:100;backdrop-filter:blur(10px);
+}
+.menu-panel.open{display:block}
+.menu-link{display:block;text-decoration:none;color:var(--text);padding:10px 12px;border-radius:10px;font-size:14px;}
+.menu-link:hover{background:var(--hover)}
+.menu-link.active{background:rgba(34,197,94,.12);color:#166534;}
+.widget{width:min(980px,100%);background:transparent;}
+.title{font-size:18px;font-weight:700;}
+.subtitle{color:var(--muted);font-size:13px;margin-top:4px;}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap;position:relative;}
+.btn,.ghost{
+  border:1px solid var(--line);background:rgba(255,255,255,.72);color:var(--text);
+  border-radius:10px;padding:9px 12px;cursor:pointer;font:inherit;font-size:13px;text-decoration:none;backdrop-filter:blur(8px);
+}
+.btn:hover,.ghost:hover{background:rgba(255,255,255,.95)}
+.pill{
+  display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:rgba(255,255,255,.65);
+  color:var(--muted);border-radius:999px;padding:8px 12px;font-size:12px;backdrop-filter:blur(8px);
+}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;color:var(--muted);font-size:12px;}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.dot{width:10px;height:10px;border-radius:999px;border:1px solid rgba(0,0,0,.06);}
+.footer{margin-top:14px;color:var(--muted);font-size:12px;}
+.empty{
+  border:1px dashed var(--line);border-radius:12px;padding:14px;color:var(--muted);
+  font-size:14px;background:rgba(255,255,255,.35);
+}
+@media (max-width:560px){.topnav{align-items:flex-start}}
+
+.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;}
+.weekday{color:var(--muted);font-size:12px;text-align:center;padding-bottom:4px;}
+.cal-cell{aspect-ratio:1/1;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.45);padding:8px;display:flex;flex-direction:column;justify-content:space-between;min-height:76px;backdrop-filter:blur(8px);}
+.cal-cell.today{outline:2px solid rgba(59,130,246,.6);outline-offset:2px;}
+.cal-cell.empty{background:transparent;border-style:dashed;opacity:.25;}
+.cal-day{font-weight:700;font-size:13px;}
+.small{color:var(--muted);font-size:12px;}
+</style>
+</head>
+<body>
+<div class="site">
+
+<div class="topnav">
+  <div class="brand">Workout tracker</div>
+  <div class="menu-wrap">
+    <button id="menuBtn" class="menu-btn" type="button" aria-label="Open menu">☰</button>
+    <div id="menuPanel" class="menu-panel">
+      <a class="menu-link" href="./index.html">Home</a>
+      <a class="menu-link" href="./daily.html">Daily</a>
+      <a class="menu-link" href="./weekly.html">Weekly</a>
+      <a class="menu-link" href="./monthly.html">Monthly</a>
+      <a class="menu-link" href="./yearly.html">Yearly</a>
+    </div>
+  </div>
+</div>
+
+
+<div class="widget">
+  <div class="topbar">
+    <div>
+      <div class="title">Monthly workout view</div>
+      <div class="subtitle">Calendar summary of the same daily workout data.</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button id="prevMonth" class="btn" type="button">← Month</button>
+      <div id="monthLabel" class="pill"></div>
+      <button id="nextMonth" class="btn" type="button">Month →</button>
+    </div>
+  </div>
+  <div class="legend">
+    <span><i class="dot" style="background:var(--green)"></i> Complete</span>
+    <span><i class="dot" style="background:var(--orange)"></i> Partial</span>
+    <span><i class="dot" style="background:var(--red)"></i> Skipped</span>
+    <span><i class="dot" style="background:#94a3b8"></i> No labels</span>
+  </div>
+  <div class="calendar" id="weekdays"></div>
+  <div class="calendar" id="monthGrid"></div>
+  <div class="footer">Today is outlined in blue.</div>
+</div>
+
+</div>
+<script>
+function initHamburger(currentPage){
+  const btn = document.getElementById("menuBtn");
+  const panel = document.getElementById("menuPanel");
+  if (!btn || !panel) return;
+  [...panel.querySelectorAll(".menu-link")].forEach(link => {
+    if (link.getAttribute("href") === currentPage) link.classList.add("active");
+  });
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    panel.classList.toggle("open");
+  });
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".menu-wrap")) panel.classList.remove("open");
+  });
+}
+const STORAGE_KEY = "github-workout-daily-widget-v1";
+function readState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { globalWorkouts: [], days: {} };
+    const parsed = JSON.parse(raw);
+    if (!parsed.globalWorkouts) parsed.globalWorkouts = [];
+    if (!parsed.days) parsed.days = {};
+    return parsed;
+  } catch (e) {
+    return { globalWorkouts: [], days: {} };
+  }
+}
+function writeState(state){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function pad(n){ return String(n).padStart(2, "0"); }
+function keyFromDate(d){ return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); }
+function sameDate(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+function startOfWeek(d){ const x = new Date(d); x.setHours(0,0,0,0); x.setDate(x.getDate() - x.getDay()); return x; }
+function addDays(d,n){ const x = new Date(d); x.setDate(x.getDate()+n); return x; }
+function statusForDay(dayData, totalWorkouts){
+  const planned = Array.isArray(dayData && dayData.planned) ? dayData.planned : [];
+  const total = planned.length;
+  if (!total) return { label:"No plan", cls:"status-empty", color:"var(--empty)", done:0, total:0 };
+  const completed = (dayData && dayData.completed) || {};
+  const done = planned.filter(label => !!completed[label]).length;
+  if (done === 0) return { label:"Skipped", cls:"status-red", color:"var(--red)", done, total };
+  if (done >= total) return { label:"Complete", cls:"status-green", color:"var(--green)", done, total };
+  return { label:"Partial", cls:"status-orange", color:"var(--orange)", done, total };
+}
+function monthLabel(d){ return new Intl.DateTimeFormat(undefined, { month:"long", year:"numeric" }).format(d); }
+
+initHamburger("./monthly.html");
+const state = readState();
+let viewDate = new Date();
+function renderWeekdays(){
+  const weekdays = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const box = document.getElementById("weekdays");
+  box.innerHTML = "";
+  weekdays.forEach(w => {
+    const el = document.createElement("div");
+    el.className = "weekday";
+    el.textContent = w;
+    box.appendChild(el);
+  });
+}
+function renderMonthly(){
+  const totalWorkouts = state.globalWorkouts.length;
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  document.getElementById("monthLabel").textContent = monthLabel(viewDate);
+  const first = new Date(year, month, 1);
+  const firstWeekday = first.getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const grid = document.getElementById("monthGrid");
+  grid.innerHTML = "";
+  for (let i=0; i<firstWeekday; i++) {
+    const empty = document.createElement("div");
+    empty.className = "cal-cell empty";
+    grid.appendChild(empty);
+  }
+  for (let day=1; day<=daysInMonth; day++) {
+    const d = new Date(year, month, day);
+    const key = keyFromDate(d);
+    const info = statusForDay(state.days[key], totalWorkouts);
+    const cell = document.createElement("div");
+    cell.className = "cal-cell" + (sameDate(d, new Date()) ? " today" : "");
+    cell.style.background = info.color;
+    cell.style.color = (info.label === "Skipped" || info.label === "Complete" || info.label === "Partial") ? "white" : "var(--text)";
+    cell.innerHTML = `<div class="cal-day">${day}</div><div class="small" style="color:inherit; opacity:.92;">${info.done}/${info.total}</div>`;
+    grid.appendChild(cell);
+  }
+}
+document.getElementById("prevMonth").onclick = () => { viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth()-1, 1); renderMonthly(); };
+document.getElementById("nextMonth").onclick = () => { viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth()+1, 1); renderMonthly(); };
+renderWeekdays();
+renderMonthly();
+</script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Workout Weekly</title>
+<style>
+:root{
+  --text:#1f2937;
+  --muted:#6b7280;
+  --line:rgba(17,24,39,.14);
+  --hover:rgba(17,24,39,.05);
+  --green:#22c55e;
+  --orange:#f59e0b;
+  --red:#ef4444;
+  --empty:#94a3b8;
+  --shadow:0 10px 30px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color:var(--text);
+  background:transparent;
+  padding:12px;
+}
+.site{width:min(980px,100%);margin:0 auto;}
+.topnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;}
+.brand{font-size:13px;color:var(--muted);}
+.menu-wrap{position:relative;}
+.menu-btn{
+  border:1px solid var(--line);background:rgba(255,255,255,.78);color:var(--text);
+  border-radius:12px;width:44px;height:44px;cursor:pointer;backdrop-filter:blur(8px);font-size:18px;
+}
+.menu-btn:hover{background:rgba(255,255,255,.95)}
+.menu-panel{
+  position:absolute;right:0;top:calc(100% + 8px);min-width:220px;background:rgba(255,255,255,.96);
+  border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:8px;display:none;z-index:100;backdrop-filter:blur(10px);
+}
+.menu-panel.open{display:block}
+.menu-link{display:block;text-decoration:none;color:var(--text);padding:10px 12px;border-radius:10px;font-size:14px;}
+.menu-link:hover{background:var(--hover)}
+.menu-link.active{background:rgba(34,197,94,.12);color:#166534;}
+.widget{width:min(980px,100%);background:transparent;}
+.title{font-size:18px;font-weight:700;}
+.subtitle{color:var(--muted);font-size:13px;margin-top:4px;}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap;position:relative;}
+.btn,.ghost{
+  border:1px solid var(--line);background:rgba(255,255,255,.72);color:var(--text);
+  border-radius:10px;padding:9px 12px;cursor:pointer;font:inherit;font-size:13px;text-decoration:none;backdrop-filter:blur(8px);
+}
+.btn:hover,.ghost:hover{background:rgba(255,255,255,.95)}
+.pill{
+  display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:rgba(255,255,255,.65);
+  color:var(--muted);border-radius:999px;padding:8px 12px;font-size:12px;backdrop-filter:blur(8px);
+}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;color:var(--muted);font-size:12px;}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.dot{width:10px;height:10px;border-radius:999px;border:1px solid rgba(0,0,0,.06);}
+.footer{margin-top:14px;color:var(--muted);font-size:12px;}
+.empty{
+  border:1px dashed var(--line);border-radius:12px;padding:14px;color:var(--muted);
+  font-size:14px;background:rgba(255,255,255,.35);
+}
+@media (max-width:560px){.topnav{align-items:flex-start}}
+
+.grid7{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;}
+.day-card{border:1px solid var(--line);border-radius:14px;padding:12px;min-height:120px;background:rgba(255,255,255,.48);backdrop-filter:blur(8px);}
+.day-card.today{outline:2px solid rgba(59,130,246,.6);outline-offset:2px;}
+.day-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;margin-bottom:10px;}
+.day-name{font-size:12px;color:var(--muted);}
+.day-num{font-weight:700;font-size:16px;}
+.status-chip{border-radius:999px;padding:4px 8px;font-size:11px;color:white;}
+.status-green{background:var(--green)} .status-orange{background:var(--orange)} .status-red{background:var(--red)} .status-empty{background:#94a3b8}
+.small{color:var(--muted);font-size:12px;}
+.count{font-size:20px;font-weight:700;margin-top:6px;}
+.planner-overlay{position:fixed;inset:0;background:rgba(0,0,0,.18);display:none;align-items:center;justify-content:center;padding:16px;z-index:150;}.planner-overlay.open{display:flex;}.planner-panel{width:min(520px,100%);background:rgba(255,255,255,.98);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:16px;backdrop-filter:blur(10px);}.planner-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:12px;}.planner-list{display:grid;gap:8px;max-height:220px;overflow:auto;margin-bottom:12px;}.planner-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;}.planner-item:hover{background:var(--hover)}.planner-item input{accent-color:#16a34a}.planner-add{display:flex;gap:8px;margin-top:8px;}.planner-add input{flex:1;border:1px solid var(--line);background:rgba(255,255,255,.8);border-radius:10px;padding:10px 12px;font:inherit;}@media (max-width:640px){ .grid7{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="site">
+
+<div class="topnav">
+  <div class="brand">Workout tracker</div>
+  <div class="menu-wrap">
+    <button id="menuBtn" class="menu-btn" type="button" aria-label="Open menu">☰</button>
+    <div id="menuPanel" class="menu-panel">
+      <a class="menu-link" href="./index.html">Home</a>
+      <a class="menu-link" href="./daily.html">Daily</a>
+      <a class="menu-link" href="./weekly.html">Weekly</a>
+      <a class="menu-link" href="./monthly.html">Monthly</a>
+      <a class="menu-link" href="./yearly.html">Yearly</a>
+    </div>
+  </div>
+</div>
+
+
+<div class="widget">
+  <div class="topbar">
+    <div>
+      <div class="title">Weekly workout view</div>
+      <div class="subtitle">Green = all workout labels done, orange = some done, red = none done.</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button id="prevWeek" class="btn" type="button">← Week</button>
+      <div id="weekRange" class="pill"></div>
+      <button id="nextWeek" class="btn" type="button">Week →</button>
+    </div>
+  </div>
+  <div class="legend">
+    <span><i class="dot" style="background:var(--green)"></i> Complete</span>
+    <span><i class="dot" style="background:var(--orange)"></i> Partial</span>
+    <span><i class="dot" style="background:var(--red)"></i> Skipped</span>
+    <span><i class="dot" style="background:#94a3b8"></i> No labels</span>
+  </div>
+  <div id="weekGrid" class="grid7"></div>
+  <div class="footer">Click a day to plan workouts ahead of time.</div><div id="plannerOverlay" class="planner-overlay"><div class="planner-panel"><div class="planner-head"><div><div class="title" style="font-size:15px;">Plan workouts</div><div id="plannerDate" class="subtitle"></div></div><button id="closePlannerBtn" class="ghost" type="button">Close</button></div><div id="plannerList" class="planner-list"></div><div class="planner-add"><input id="plannerInput" type="text" placeholder="Add workout to this day..." /><button id="plannerAddBtn" class="btn" type="button">Add</button></div></div></div>
+</div>
+
+</div>
+<script>
+function initHamburger(currentPage){
+  const btn = document.getElementById("menuBtn");
+  const panel = document.getElementById("menuPanel");
+  if (!btn || !panel) return;
+  [...panel.querySelectorAll(".menu-link")].forEach(link => {
+    if (link.getAttribute("href") === currentPage) link.classList.add("active");
+  });
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    panel.classList.toggle("open");
+  });
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".menu-wrap")) panel.classList.remove("open");
+  });
+}
+const STORAGE_KEY = "github-workout-daily-widget-v1";
+function readState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { globalWorkouts: [], days: {} };
+    const parsed = JSON.parse(raw);
+    if (!parsed.globalWorkouts) parsed.globalWorkouts = [];
+    if (!parsed.days) parsed.days = {};
+    return parsed;
+  } catch (e) {
+    return { globalWorkouts: [], days: {} };
+  }
+}
+function writeState(state){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function pad(n){ return String(n).padStart(2, "0"); }
+function keyFromDate(d){ return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); }
+function sameDate(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+function startOfWeek(d){ const x = new Date(d); x.setHours(0,0,0,0); x.setDate(x.getDate() - x.getDay()); return x; }
+function addDays(d,n){ const x = new Date(d); x.setDate(x.getDate()+n); return x; }
+function statusForDay(dayData, totalWorkouts){
+  const planned = Array.isArray(dayData && dayData.planned) ? dayData.planned : [];
+  const total = planned.length;
+  if (!total) return { label:"No plan", cls:"status-empty", color:"var(--empty)", done:0, total:0 };
+  const completed = (dayData && dayData.completed) || {};
+  const done = planned.filter(label => !!completed[label]).length;
+  if (done === 0) return { label:"Skipped", cls:"status-red", color:"var(--red)", done, total };
+  if (done >= total) return { label:"Complete", cls:"status-green", color:"var(--green)", done, total };
+  return { label:"Partial", cls:"status-orange", color:"var(--orange)", done, total };
+}
+function monthLabel(d){ return new Intl.DateTimeFormat(undefined, { month:"long", year:"numeric" }).format(d); }
+
+initHamburger("./weekly.html");
+const state = readState();
+let anchor = startOfWeek(new Date());
+let plannerKey = null;
+
+function ensurePlan(key) {
+  if (!state.days[key]) state.days[key] = { groups: [], completed: {}, planned: [] };
+  if (!Array.isArray(state.days[key].planned)) state.days[key].planned = [];
+  return state.days[key];
+}
+function renderWeekly(){
+  const grid = document.getElementById("weekGrid");
+  grid.innerHTML = "";
+  const start = startOfWeek(anchor);
+  const end = addDays(start, 6);
+  document.getElementById("weekRange").textContent =
+    new Intl.DateTimeFormat(undefined, { month:"short", day:"numeric" }).format(start) +
+    " – " +
+    new Intl.DateTimeFormat(undefined, { month:"short", day:"numeric" }).format(end);
+
+  for (let i=0; i<7; i++) {
+    const d = addDays(start, i);
+    const key = keyFromDate(d);
+    const info = statusForDay(state.days[key], state.globalWorkouts.length);
+    const groups = ((state.days[key] && state.days[key].groups) || []).join(", ") || "No muscle groups selected";
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "day-card" + (sameDate(d, new Date()) ? " today" : "");
+    card.style.textAlign = "left";
+    card.style.cursor = "pointer";
+    card.innerHTML = `
+      <div class="day-head">
+        <div>
+          <div class="day-name">${new Intl.DateTimeFormat(undefined, { weekday:"short" }).format(d)}</div>
+          <div class="day-num">${d.getDate()}</div>
+        </div>
+        <div class="status-chip ${info.cls}">${info.label}</div>
+      </div>
+      <div class="small">${info.total ? "Completed" : "No workouts planned"}</div>
+      <div class="count">${info.total ? (info.done + " / " + info.total) : "—"}</div>
+      <div class="small" style="margin-top:8px;">${groups}</div>
+    `;
+    card.onclick = () => openPlanner(key, d);
+    grid.appendChild(card);
+  }
+}
+
+function openPlanner(key, dateObj) {
+  plannerKey = key;
+  const overlay = document.getElementById("plannerOverlay");
+  overlay.classList.add("open");
+  document.getElementById("plannerDate").textContent = new Intl.DateTimeFormat(undefined, { weekday:"long", month:"short", day:"numeric" }).format(dateObj);
+  renderPlanner();
+}
+function closePlanner() {
+  document.getElementById("plannerOverlay").classList.remove("open");
+  plannerKey = null;
+}
+function renderPlanner() {
+  if (!plannerKey) return;
+  const day = ensurePlan(plannerKey);
+  const list = document.getElementById("plannerList");
+  list.innerHTML = "";
+
+  state.globalWorkouts.forEach(label => {
+    const row = document.createElement("label");
+    row.className = "planner-item";
+    const checked = day.planned.some(x => x.toLowerCase() === label.toLowerCase());
+    row.innerHTML = '<input type="checkbox" ' + (checked ? 'checked' : '') + ' /><span>' + label + '</span>';
+    const checkbox = row.querySelector("input");
+    checkbox.addEventListener("change", () => {
+      if (checkbox.checked) {
+        if (!day.planned.some(x => x.toLowerCase() === label.toLowerCase())) day.planned.push(label);
+      } else {
+        day.planned = day.planned.filter(x => x.toLowerCase() !== label.toLowerCase());
+        delete day.completed[label];
+      }
+      state.days[plannerKey] = day;
+      writeState(state);
+      renderPlanner();
+      renderWeekly();
+    });
+    list.appendChild(row);
+  });
+
+  if (!state.globalWorkouts.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "No global workout labels yet. Add some from the daily page or below.";
+    list.appendChild(empty);
+  }
+}
+
+function addPlannerWorkout() {
+  if (!plannerKey) return;
+  const input = document.getElementById("plannerInput");
+  const value = input.value.trim();
+  if (!value) return;
+  if (!state.globalWorkouts.some(x => x.toLowerCase() === value.toLowerCase())) state.globalWorkouts.push(value);
+  const day = ensurePlan(plannerKey);
+  if (!day.planned.some(x => x.toLowerCase() === value.toLowerCase())) day.planned.push(value);
+  state.days[plannerKey] = day;
+  writeState(state);
+  input.value = "";
+  renderPlanner();
+  renderWeekly();
+}
+
+document.getElementById("prevWeek").onclick = () => { anchor = addDays(anchor, -7); renderWeekly(); };
+document.getElementById("nextWeek").onclick = () => { anchor = addDays(anchor, 7); renderWeekly(); };
+document.getElementById("closePlannerBtn").onclick = closePlanner;
+document.getElementById("plannerOverlay").addEventListener("click", (e) => {
+  if (e.target.id === "plannerOverlay") closePlanner();
+});
+document.getElementById("plannerAddBtn").onclick = addPlannerWorkout;
+document.getElementById("plannerInput").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") { e.preventDefault(); addPlannerWorkout(); }
+});
+renderWeekly();
+</script>
+</body>
+</html>

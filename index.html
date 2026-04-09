@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Workout Tracker Home</title>
+<style>
+:root{
+  --text:#1f2937;
+  --muted:#6b7280;
+  --line:rgba(17,24,39,.14);
+  --hover:rgba(17,24,39,.05);
+  --green:#22c55e;
+  --orange:#f59e0b;
+  --red:#ef4444;
+  --empty:#94a3b8;
+  --shadow:0 10px 30px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color:var(--text);
+  background:transparent;
+  padding:12px;
+}
+.site{width:min(980px,100%);margin:0 auto;}
+.topnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;}
+.brand{font-size:13px;color:var(--muted);}
+.menu-wrap{position:relative;}
+.menu-btn{
+  border:1px solid var(--line);background:rgba(255,255,255,.78);color:var(--text);
+  border-radius:12px;width:44px;height:44px;cursor:pointer;backdrop-filter:blur(8px);font-size:18px;
+}
+.menu-btn:hover{background:rgba(255,255,255,.95)}
+.menu-panel{
+  position:absolute;right:0;top:calc(100% + 8px);min-width:220px;background:rgba(255,255,255,.96);
+  border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:8px;display:none;z-index:100;backdrop-filter:blur(10px);
+}
+.menu-panel.open{display:block}
+.menu-link{display:block;text-decoration:none;color:var(--text);padding:10px 12px;border-radius:10px;font-size:14px;}
+.menu-link:hover{background:var(--hover)}
+.menu-link.active{background:rgba(34,197,94,.12);color:#166534;}
+.widget{width:min(980px,100%);background:transparent;}
+.title{font-size:18px;font-weight:700;}
+.subtitle{color:var(--muted);font-size:13px;margin-top:4px;}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap;position:relative;}
+.btn,.ghost{
+  border:1px solid var(--line);background:rgba(255,255,255,.72);color:var(--text);
+  border-radius:10px;padding:9px 12px;cursor:pointer;font:inherit;font-size:13px;text-decoration:none;backdrop-filter:blur(8px);
+}
+.btn:hover,.ghost:hover{background:rgba(255,255,255,.95)}
+.pill{
+  display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:rgba(255,255,255,.65);
+  color:var(--muted);border-radius:999px;padding:8px 12px;font-size:12px;backdrop-filter:blur(8px);
+}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;color:var(--muted);font-size:12px;}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.dot{width:10px;height:10px;border-radius:999px;border:1px solid rgba(0,0,0,.06);}
+.footer{margin-top:14px;color:var(--muted);font-size:12px;}
+.empty{
+  border:1px dashed var(--line);border-radius:12px;padding:14px;color:var(--muted);
+  font-size:14px;background:rgba(255,255,255,.35);
+}
+@media (max-width:560px){.topnav{align-items:flex-start}}
+
+.home{display:flex;justify-content:center;align-items:center;min-height:70vh;}
+.home-box{width:min(460px,100%);}
+.home-grid{display:grid;gap:12px;margin-top:18px;}
+.home-card{
+  display:block;text-decoration:none;color:var(--text);
+  border:1px solid var(--line);border-radius:14px;padding:16px;
+  background:rgba(255,255,255,.66);backdrop-filter:blur(10px);
+  transition:transform .12s ease, background .12s ease, box-shadow .12s ease;
+}
+.home-card:hover{transform:translateY(-1px);background:rgba(255,255,255,.92);box-shadow:var(--shadow);}
+.home-card strong{display:block;font-size:15px;}
+.home-card span{display:block;color:var(--muted);font-size:13px;margin-top:4px;}
+</style>
+</head>
+<body>
+<div class="site">
+
+<div class="topnav">
+  <div class="brand">Workout tracker</div>
+  <div class="menu-wrap">
+    <button id="menuBtn" class="menu-btn" type="button" aria-label="Open menu">☰</button>
+    <div id="menuPanel" class="menu-panel">
+      <a class="menu-link" href="./index.html">Home</a>
+      <a class="menu-link" href="./daily.html">Daily</a>
+      <a class="menu-link" href="./weekly.html">Weekly</a>
+      <a class="menu-link" href="./monthly.html">Monthly</a>
+      <a class="menu-link" href="./yearly.html">Yearly</a>
+    </div>
+  </div>
+</div>
+
+
+<div class="home">
+  <div class="home-box">
+    <div class="title">Workout tracker</div>
+    <div class="subtitle">Choose a view. All pages share the same saved workout data in your browser.</div>
+    <div class="home-grid">
+      <a class="home-card" href="./daily.html"><strong>Daily</strong><span>Log muscle groups and workout buttons for today.</span></a>
+      <a class="home-card" href="./weekly.html"><strong>Weekly</strong><span>See the selected week as complete, partial, or skipped.</span></a>
+      <a class="home-card" href="./monthly.html"><strong>Monthly</strong><span>Calendar overview of daily workout completion.</span></a>
+      <a class="home-card" href="./yearly.html"><strong>Yearly</strong><span>Mini heatmaps for all 12 months.</span></a>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+function initHamburger(currentPage){
+  const btn = document.getElementById("menuBtn");
+  const panel = document.getElementById("menuPanel");
+  if (!btn || !panel) return;
+  [...panel.querySelectorAll(".menu-link")].forEach(link => {
+    if (link.getAttribute("href") === currentPage) link.classList.add("active");
+  });
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    panel.classList.toggle("open");
+  });
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".menu-wrap")) panel.classList.remove("open");
+  });
+}
+const STORAGE_KEY = "github-workout-daily-widget-v1";
+function readState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { globalWorkouts: [], days: {} };
+    const parsed = JSON.parse(raw);
+    if (!parsed.globalWorkouts) parsed.globalWorkouts = [];
+    if (!parsed.days) parsed.days = {};
+    return parsed;
+  } catch (e) {
+    return { globalWorkouts: [], days: {} };
+  }
+}
+function writeState(state){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function pad(n){ return String(n).padStart(2, "0"); }
+function keyFromDate(d){ return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); }
+function sameDate(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+function startOfWeek(d){ const x = new Date(d); x.setHours(0,0,0,0); x.setDate(x.getDate() - x.getDay()); return x; }
+function addDays(d,n){ const x = new Date(d); x.setDate(x.getDate()+n); return x; }
+function statusForDay(dayData, totalWorkouts){
+  if (!totalWorkouts) return { label:"No labels", cls:"status-empty", color:"var(--empty)", done:0, total:0 };
+  const done = Object.values((dayData && dayData.completed) || {}).filter(Boolean).length;
+  if (done === 0) return { label:"Skipped", cls:"status-red", color:"var(--red)", done, total:totalWorkouts };
+  if (done >= totalWorkouts) return { label:"Complete", cls:"status-green", color:"var(--green)", done, total:totalWorkouts };
+  return { label:"Partial", cls:"status-orange", color:"var(--orange)", done, total:totalWorkouts };
+}
+function monthLabel(d){ return new Intl.DateTimeFormat(undefined, { month:"long", year:"numeric" }).format(d); }
+initHamburger("./index.html");</script>
+</body>
+</html>

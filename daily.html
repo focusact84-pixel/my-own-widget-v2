@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Workout Daily</title>
+<style>
+:root{
+  --text:#1f2937;
+  --muted:#6b7280;
+  --line:rgba(17,24,39,.14);
+  --hover:rgba(17,24,39,.05);
+  --green:#22c55e;
+  --orange:#f59e0b;
+  --red:#ef4444;
+  --empty:#94a3b8;
+  --shadow:0 10px 30px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color:var(--text);
+  background:transparent;
+  padding:12px;
+}
+.site{width:min(980px,100%);margin:0 auto;}
+.topnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;}
+.brand{font-size:13px;color:var(--muted);}
+.menu-wrap{position:relative;}
+.menu-btn{
+  border:1px solid var(--line);background:rgba(255,255,255,.78);color:var(--text);
+  border-radius:12px;width:44px;height:44px;cursor:pointer;backdrop-filter:blur(8px);font-size:18px;
+}
+.menu-btn:hover{background:rgba(255,255,255,.95)}
+.menu-panel{
+  position:absolute;right:0;top:calc(100% + 8px);min-width:220px;background:rgba(255,255,255,.96);
+  border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:8px;display:none;z-index:100;backdrop-filter:blur(10px);
+}
+.menu-panel.open{display:block}
+.menu-link{display:block;text-decoration:none;color:var(--text);padding:10px 12px;border-radius:10px;font-size:14px;}
+.menu-link:hover{background:var(--hover)}
+.menu-link.active{background:rgba(34,197,94,.12);color:#166534;}
+.widget{width:min(980px,100%);background:transparent;}
+.title{font-size:18px;font-weight:700;}
+.subtitle{color:var(--muted);font-size:13px;margin-top:4px;}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap;position:relative;}
+.btn,.ghost{
+  border:1px solid var(--line);background:rgba(255,255,255,.72);color:var(--text);
+  border-radius:10px;padding:9px 12px;cursor:pointer;font:inherit;font-size:13px;text-decoration:none;backdrop-filter:blur(8px);
+}
+.btn:hover,.ghost:hover{background:rgba(255,255,255,.95)}
+.pill{
+  display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:rgba(255,255,255,.65);
+  color:var(--muted);border-radius:999px;padding:8px 12px;font-size:12px;backdrop-filter:blur(8px);
+}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;color:var(--muted);font-size:12px;}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.dot{width:10px;height:10px;border-radius:999px;border:1px solid rgba(0,0,0,.06);}
+.footer{margin-top:14px;color:var(--muted);font-size:12px;}
+.empty{
+  border:1px dashed var(--line);border-radius:12px;padding:14px;color:var(--muted);
+  font-size:14px;background:rgba(255,255,255,.35);
+}
+@media (max-width:560px){.topnav{align-items:flex-start}}
+
+.dropdown-wrap{position:relative;width:100%;max-width:340px;}
+.dropdown-button{
+  width:100%;border:1px solid var(--line);background:rgba(255,255,255,.7);color:var(--text);
+  border-radius:12px;padding:12px 40px 12px 12px;text-align:left;cursor:pointer;font-size:14px;
+  line-height:1.3;min-height:46px;position:relative;backdrop-filter:blur(8px);
+}
+.dropdown-button:hover{background:rgba(255,255,255,.92)}
+.dropdown-button:after{content:"▾";position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;}
+.dropdown-panel{
+  position:absolute;top:calc(100% + 8px);left:0;width:100%;background:rgba(255,255,255,.96);
+  border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:10px;z-index:50;display:none;backdrop-filter:blur(10px);
+}
+.dropdown-panel.open{display:block}
+.dropdown-search{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;outline:none;margin-bottom:8px;}
+.group-list{max-height:180px;overflow:auto;display:grid;gap:6px;}
+.group-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;cursor:pointer;user-select:none;}
+.group-item:hover{background:var(--hover)}
+.group-item input{accent-color:#16a34a}
+.date{font-size:14px;color:var(--muted);white-space:nowrap;padding-top:12px;}
+.add-row{display:flex;gap:10px;margin-bottom:16px;}
+.add-input{flex:1;border:1px solid var(--line);background:rgba(255,255,255,.72);border-radius:12px;padding:12px 14px;font:inherit;outline:none;backdrop-filter:blur(8px);}
+.add-btn{width:46px;min-width:46px;height:46px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.78);cursor:pointer;font-size:22px;line-height:1;color:var(--text);}
+.button-list{display:grid;gap:10px;}
+.workout-btn{
+  width:100%;border:1px solid var(--line);background:rgba(255,255,255,.55);color:var(--text);
+  border-radius:12px;padding:14px 14px;text-align:left;cursor:pointer;font:inherit;
+  transition:transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;backdrop-filter:blur(8px);
+}
+.workout-btn:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(0,0,0,.07);background:rgba(255,255,255,.92);}
+.workout-btn.active{background:var(--green);border-color:var(--green);color:white;box-shadow:0 8px 18px rgba(34,197,94,.22);}
+.daynav{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}.daynav .label{font-size:13px;color:var(--muted);}.actions{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;}
+@media (max-width:560px){.topbar{flex-direction:column}.dropdown-wrap{max-width:none}.date{padding-top:0}}
+</style>
+</head>
+<body>
+<div class="site">
+
+<div class="topnav">
+  <div class="brand">Workout tracker</div>
+  <div class="menu-wrap">
+    <button id="menuBtn" class="menu-btn" type="button" aria-label="Open menu">☰</button>
+    <div id="menuPanel" class="menu-panel">
+      <a class="menu-link" href="./index.html">Home</a>
+      <a class="menu-link" href="./daily.html">Daily</a>
+      <a class="menu-link" href="./weekly.html">Weekly</a>
+      <a class="menu-link" href="./monthly.html">Monthly</a>
+      <a class="menu-link" href="./yearly.html">Yearly</a>
+    </div>
+  </div>
+</div>
+
+
+<div class="widget">
+  <div class="topbar">
+    <div class="dropdown-wrap">
+      <button id="groupButton" class="dropdown-button" type="button">Select muscle groups</button>
+      <div id="groupPanel" class="dropdown-panel">
+        <input id="groupSearch" class="dropdown-search" type="text" placeholder="Search muscle groups..." />
+        <div id="groupList" class="group-list"></div>
+      </div>
+    </div>
+    <div id="dateLabel" class="date"></div>
+  </div>
+  <div class="daynav"><button id="prevDayBtn" class="ghost" type="button">← Previous day</button><span class="label">Use this to review yesterday or plan tomorrow.</span><button id="nextDayBtn" class="ghost" type="button">Next day →</button></div><div class="add-row">
+    <input id="workoutInput" class="add-input" type="text" placeholder="Add workout..." />
+    <button id="addWorkoutBtn" class="add-btn" type="button" aria-label="Add workout">+</button>
+  </div>
+  <div id="buttonList" class="button-list"></div>
+  <div class="actions">
+    <button id="clearTodayBtn" class="ghost" type="button">Clear today</button>
+    <button id="clearLabelsBtn" class="ghost" type="button">Clear workout labels</button>
+  </div>
+  <div class="footer">Saved locally in your browser. GitHub Pages and Notion-embed friendly.</div>
+</div>
+
+</div>
+<script>
+function initHamburger(currentPage){
+  const btn = document.getElementById("menuBtn");
+  const panel = document.getElementById("menuPanel");
+  if (!btn || !panel) return;
+  [...panel.querySelectorAll(".menu-link")].forEach(link => {
+    if (link.getAttribute("href") === currentPage) link.classList.add("active");
+  });
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    panel.classList.toggle("open");
+  });
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".menu-wrap")) panel.classList.remove("open");
+  });
+}
+const STORAGE_KEY = "github-workout-daily-widget-v1";
+function readState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { globalWorkouts: [], days: {} };
+    const parsed = JSON.parse(raw);
+    if (!parsed.globalWorkouts) parsed.globalWorkouts = [];
+    if (!parsed.days) parsed.days = {};
+    return parsed;
+  } catch (e) {
+    return { globalWorkouts: [], days: {} };
+  }
+}
+function writeState(state){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function pad(n){ return String(n).padStart(2, "0"); }
+function keyFromDate(d){ return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); }
+function sameDate(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+function startOfWeek(d){ const x = new Date(d); x.setHours(0,0,0,0); x.setDate(x.getDate() - x.getDay()); return x; }
+function addDays(d,n){ const x = new Date(d); x.setDate(x.getDate()+n); return x; }
+function statusForDay(dayData, totalWorkouts){
+  if (!totalWorkouts) return { label:"No labels", cls:"status-empty", color:"var(--empty)", done:0, total:0 };
+  const done = Object.values((dayData && dayData.completed) || {}).filter(Boolean).length;
+  if (done === 0) return { label:"Skipped", cls:"status-red", color:"var(--red)", done, total:totalWorkouts };
+  if (done >= totalWorkouts) return { label:"Complete", cls:"status-green", color:"var(--green)", done, total:totalWorkouts };
+  return { label:"Partial", cls:"status-orange", color:"var(--orange)", done, total:totalWorkouts };
+}
+function monthLabel(d){ return new Intl.DateTimeFormat(undefined, { month:"long", year:"numeric" }).format(d); }
+
+initHamburger("./daily.html");
+const DEFAULT_GROUPS = ["Chest", "Back", "Arms", "Abdominals", "Legs", "Shoulders"];
+let state = readState();
+let viewDate = new Date();
+
+function dateKey(d) { return d.toISOString().slice(0, 10); }
+function formatViewDate(d) {
+  return new Intl.DateTimeFormat(undefined, { weekday: "long", month: "short", day: "numeric" }).format(d);
+}
+function ensureDay(state, key) {
+  if (!state.days[key]) state.days[key] = { groups: [], completed: {}, planned: [...state.globalWorkouts] };
+  if (!Array.isArray(state.days[key].planned)) state.days[key].planned = [...state.globalWorkouts];
+  return state.days[key];
+}
+function selectedGroupsText(groups) { return groups.length ? groups.join(", ") : "Select muscle groups"; }
+
+const groupButton = document.getElementById("groupButton");
+const groupPanel = document.getElementById("groupPanel");
+const groupSearch = document.getElementById("groupSearch");
+const groupList = document.getElementById("groupList");
+const dateLabel = document.getElementById("dateLabel");
+const workoutInput = document.getElementById("workoutInput");
+const addWorkoutBtn = document.getElementById("addWorkoutBtn");
+const buttonList = document.getElementById("buttonList");
+const clearTodayBtn = document.getElementById("clearTodayBtn");
+const clearLabelsBtn = document.getElementById("clearLabelsBtn");
+
+function currentKey() { return dateKey(viewDate); }
+function currentDay() { return ensureDay(state, currentKey()); }
+
+function renderGroups() {
+  const day = currentDay();
+  const q = groupSearch.value.trim().toLowerCase();
+  groupList.innerHTML = "";
+  DEFAULT_GROUPS.filter(group => group.toLowerCase().includes(q)).forEach(group => {
+    const label = document.createElement("label");
+    label.className = "group-item";
+    const checked = day.groups.includes(group);
+    label.innerHTML = '<input type="checkbox" ' + (checked ? 'checked' : '') + ' /><span>' + group + '</span>';
+    const checkbox = label.querySelector("input");
+    checkbox.addEventListener("change", () => {
+      if (checkbox.checked) {
+        if (!day.groups.includes(group)) day.groups.push(group);
+      } else {
+        day.groups = day.groups.filter(g => g !== group);
+      }
+      state.days[currentKey()] = day;
+      writeState(state);
+      renderHeader();
+      renderGroups();
+    });
+    groupList.appendChild(label);
+  });
+  if (!groupList.children.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "No matching muscle groups.";
+    groupList.appendChild(empty);
+  }
+}
+function renderHeader() {
+  dateLabel.textContent = formatViewDate(viewDate);
+  groupButton.textContent = selectedGroupsText(currentDay().groups);
+}
+function renderWorkouts() {
+  const day = currentDay();
+  buttonList.innerHTML = "";
+  if (!Array.isArray(day.planned)) day.planned = [...state.globalWorkouts];
+  if (!day.planned.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "No workouts planned for this day yet.";
+    buttonList.appendChild(empty);
+    return;
+  }
+  day.planned.forEach(label => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "workout-btn" + (day.completed[label] ? " active" : "");
+    btn.textContent = label;
+    btn.addEventListener("click", () => {
+      day.completed[label] = !day.completed[label];
+      state.days[currentKey()] = day;
+      writeState(state);
+      renderWorkouts();
+    });
+    buttonList.appendChild(btn);
+  });
+}
+function addWorkout() {
+  const value = workoutInput.value.trim();
+  if (!value) return;
+  const globalExists = state.globalWorkouts.some(item => item.toLowerCase() === value.toLowerCase());
+  if (!globalExists) state.globalWorkouts.push(value);
+
+  const day = currentDay();
+  if (!Array.isArray(day.planned)) day.planned = [];
+  const dayExists = day.planned.some(item => item.toLowerCase() === value.toLowerCase());
+  if (!dayExists) day.planned.push(value);
+
+  state.days[currentKey()] = day;
+  writeState(state);
+  workoutInput.value = "";
+  renderWorkouts();
+}
+groupButton.addEventListener("click", () => {
+  const open = groupPanel.classList.toggle("open");
+  if (open) { groupSearch.focus(); renderGroups(); }
+});
+groupSearch.addEventListener("input", renderGroups);
+document.addEventListener("click", (e) => { if (!e.target.closest(".dropdown-wrap")) groupPanel.classList.remove("open"); });
+addWorkoutBtn.addEventListener("click", addWorkout);
+workoutInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addWorkout(); } });
+
+clearTodayBtn.addEventListener("click", () => {
+  state.days[currentKey()] = { groups: [], completed: {}, planned: [] };
+  writeState(state);
+  document.getElementById("prevDayBtn").onclick = () => shiftDay(-1);
+document.getElementById("nextDayBtn").onclick = () => shiftDay(1);
+renderHeader(); renderGroups(); renderWorkouts();
+});
+clearLabelsBtn.addEventListener("click", () => {
+  state.globalWorkouts = [];
+  Object.keys(state.days).forEach(dayKey => { state.days[dayKey].completed = {}; state.days[dayKey].planned = []; });
+  writeState(state);
+  renderWorkouts();
+});
+
+function shiftDay(n) {
+  const d = new Date(viewDate);
+  d.setDate(d.getDate() + n);
+  viewDate = d;
+  renderHeader();
+  renderGroups();
+  renderWorkouts();
+}
+</script>
+</body>
+</html>
